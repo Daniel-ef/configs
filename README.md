@@ -1,1 +1,1 @@
-### Vim and Tmux settings
+### Bash, Vim, Tmux settings
