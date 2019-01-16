@@ -18,7 +18,7 @@ function parse_git_branch() {
 	if [ ! "${BRANCH}" == "" ]
 	then
 		STAT=`parse_git_dirty`
-		echo "[${BRANCH}${STAT}]"
+		echo "${BRANCH}${STAT}"
 	else
 		echo ""
 	fi
@@ -68,11 +68,14 @@ set_prompt() {
     Green='\[\e[01;32m\]'
     Yellow='\e[0;33m\]'
     Cyan='\e[0;36m\]'
-    End='\[\e[m\]' # End color
 
+    End='\[\e[m\]' # End color
     Reset='\[\e[00m\]'
+
     FancyX='\342\234\227'
     Checkmark='\342\234\223'
+    Penguin=$(printf '\xf0\x9f\x90\xa7')
+    Apple=$(printf '\xF0\x9F\x8D\x8F')
 
     Smart_return_code=""
     if [[ $Last_Command == 0 ]]; then
@@ -84,13 +87,20 @@ set_prompt() {
     git_branch=`parse_git_branch`
 
     PS1=""
-    PS1+="$Yellow\`uname\`:"
     PS1+="$Red\\u$End@$Green\\H$End\n"
     if [[ $git_branch != "" ]]; then
-        PS1+="$Yellow$git_branch\n"
+        PS1+="[$Yellow$git_branch$End]\n"
     fi
+
+    Os_logo=""
+    if [[ `uname -a` == *"osx"* ]]; then
+        Os_logo=$Apple
+    elif [[ `uname -a` == *"Linux"* ]]; then
+        Os_logo=$Penguin
+    fi
+
     PS1+="$Cyan\\t \\d "
-    PS1+="$Yellow\\w$End [$Smart_return_code] \\$ $Reset"
+    PS1+="$Yellow\\w$End [$Smart_return_code] $Os_logo \\$ $Reset"
 }
 PROMPT_COMMAND='set_prompt'
 
