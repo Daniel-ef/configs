@@ -85,13 +85,12 @@ set_prompt() {
 
     PS1=""
     PS1+="$Yellow\`uname\`:"
-    PS1+="$Red\\u$End@$Green\\H$End:"
-    PS1+="[$Smart_return_code]\n"
+    PS1+="$Red\\u$End@$Green\\H$End\n"
     if [[ $git_branch != "" ]]; then
         PS1+="$Yellow$git_branch\n"
     fi
     PS1+="$Cyan\\t \\d "
-    PS1+="$Yellow\\w$End \\$ $Reset"
+    PS1+="$Yellow\\w$End [$Smart_return_code] \\$ $Reset"
 }
 PROMPT_COMMAND='set_prompt'
 
