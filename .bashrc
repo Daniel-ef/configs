@@ -1,7 +1,9 @@
 #eval "$(docker-machine env taix)"
 
-export CMAKE_OPTS="-DUSE_CCACHE=1"
-export CCACHE_PREFIX="distcc"
+if [[ $(uname) = "Linux" ]]; then
+    export CMAKE_OPTS="-DUSE_CCACHE=1"
+    export CCACHE_PREFIX="distcc"
+fi
 
 alias gb='git branch'
 alias gch='git checkout'
@@ -85,11 +87,20 @@ set_prompt() {
     fi
 
     git_branch=`parse_git_branch`
+    git_or_env=0
 
     PS1=""
     PS1+="$Red\\u$End@$Green\\H$End\n"
     if [[ $git_branch != "" ]]; then
-        PS1+="[$Yellow$git_branch$End]\n"
+        PS1+="[$Yellow$git_branch$End]"
+        git_or_env+=1
+    fi
+    if [[ -n "$VIRTUAL_ENV" ]]; then
+        PS1+=" (`basename $VIRTUAL_ENV`)"
+        git_or_env+=1
+    fi
+    if [[ $git_or_env != 0 ]]; then
+        PS1+="\n"
     fi
 
     Os_logo=""
