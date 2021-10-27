@@ -1,8 +1,8 @@
 #eval "$(docker-machine env taix)"
+#eval $(thefuck --alias)
 
 if [[ $(uname) = "Linux" ]]; then
     export CMAKE_OPTS="-DUSE_CCACHE=1"
-    export CCACHE_PREFIX="distcc"
 fi
 
 alias gb='git branch'
@@ -11,55 +11,20 @@ alias gst='git status'
 alias gll='git pull'
 alias gsh='git push'
 alias ls='ls -Gh'
+alias gclean='git reset --hard && git clean -fd'
+alias gsm='git submodule update --init --recursive'
+alias gbnew='git checkout -B'
+alias arc-mount="arc mount -m $HOME/arc/arcadia -S $HOME/arc/store --object-store $HOME/arc/object-store --allow-root"
+alias arc-remove-merged="arc branch --merged trunk | grep -v trunk | xargs -L 1 arc branch -d"
+
+alias ab='arc branch'
+alias ach='arc checkout'
+alias ast='arc status'
+alias all='arc pull'
+alias ash='arc push'
+alias aclean='arc reset --hard && arc clean -dx'
 
 # Custom bash prompt
-
-# get current branch in git repo
-function parse_git_branch() {
-	BRANCH=`git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/'`
-	if [ ! "${BRANCH}" == "" ]
-	then
-		STAT=`parse_git_dirty`
-		echo "${BRANCH}${STAT}"
-	else
-		echo ""
-	fi
-}
-
-# get current status of git repo
-function parse_git_dirty {
-	status=`git status 2>&1 | tee`
-	dirty=`echo -n "${status}" 2> /dev/null | grep "modified:" &> /dev/null; echo "$?"`
-	untracked=`echo -n "${status}" 2> /dev/null | grep "Untracked files" &> /dev/null; echo "$?"`
-	ahead=`echo -n "${status}" 2> /dev/null | grep "Your branch is ahead of" &> /dev/null; echo "$?"`
-	newfile=`echo -n "${status}" 2> /dev/null | grep "new file:" &> /dev/null; echo "$?"`
-	renamed=`echo -n "${status}" 2> /dev/null | grep "renamed:" &> /dev/null; echo "$?"`
-	deleted=`echo -n "${status}" 2> /dev/null | grep "deleted:" &> /dev/null; echo "$?"`
-	bits=''
-	if [ "${renamed}" == "0" ]; then
-		bits=">${bits}"
-	fi
-	if [ "${ahead}" == "0" ]; then
-		bits="*${bits}"
-	fi
-	if [ "${newfile}" == "0" ]; then
-		bits="+${bits}"
-	fi
-	if [ "${untracked}" == "0" ]; then
-		bits="?${bits}"
-	fi
-	if [ "${deleted}" == "0" ]; then
-		bits="x${bits}"
-	fi
-	if [ "${dirty}" == "0" ]; then
-		bits="!${bits}"
-	fi
-	if [ ! "${bits}" == "" ]; then
-		echo " ${bits}"
-	else
-		echo ""
-	fi
-}
 
 set_prompt() {
     Last_Command=$?
@@ -68,8 +33,8 @@ set_prompt() {
     White='\[\e[01;37m\]'
     Red='\[\e[01;31m\]'
     Green='\[\e[01;32m\]'
-    Yellow='\e[0;33m\]'
-    Cyan='\e[0;36m\]'
+    Yellow='\[\e[0;33m\]'
+    Cyan='\[\e[0;36m\]'
 
     End='\[\e[m\]' # End color
     Reset='\[\e[00m\]'
@@ -86,15 +51,10 @@ set_prompt() {
         Smart_return_code+="$Red$FancyX$End"
     fi
 
-    git_branch=`parse_git_branch`
     git_or_env=0
 
     PS1=""
     PS1+="$Red\\u$End@$Green\\H$End\n"
-    if [[ $git_branch != "" ]]; then
-        PS1+="[$Yellow$git_branch$End]"
-        git_or_env+=1
-    fi
     if [[ -n "$VIRTUAL_ENV" ]]; then
         PS1+=" (`basename $VIRTUAL_ENV`)"
         git_or_env+=1
@@ -115,3 +75,4 @@ set_prompt() {
 }
 PROMPT_COMMAND='set_prompt'
 
+. "$HOME/.cargo/env"
